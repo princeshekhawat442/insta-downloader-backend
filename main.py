@@ -1,17 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify 
 import instaloader
-import os
 
 app = Flask(__name__)
 L = instaloader.Instaloader(download_comments=False, save_metadata=False)
 
-@app.route("/")
-def root():
-    return "✅ Insta Downloader Backend is running"
-
-@app.route("/download", methods=["GET"])
-def download():
-    url = request.args.get("url")
+@app.route('/download', methods=['GET'])
+def download_instagram_post():
+    url = request.args.get('url')
     if not url:
         return jsonify({"error": "Missing URL"}), 400
 
@@ -32,18 +27,20 @@ def download():
                 "type": "video" if post.is_video else "photo"
             })
 
-        return jsonify({
+        data = {
             "success": True,
             "media": media,
             "caption": post.caption or "",
             "username": post.owner_username,
             "likes": post.likes,
             "comments": post.comments
-        })
+        }
+
+        return jsonify(data)
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=8080)
 
