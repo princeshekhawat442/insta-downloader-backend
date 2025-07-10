@@ -1,9 +1,8 @@
 services:
   - type: web
     name: insta-downloader-backend
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python3 main.py
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.10.12
+    env: python
+    buildCommand: poetry install
+    startCommand: poetry run python main.py
+    plan: free
+    autoDeploy: true
