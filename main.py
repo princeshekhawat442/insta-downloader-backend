@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify 
 import instaloader
+import os
 
 app = Flask(__name__)
 L = instaloader.Instaloader(download_comments=False, save_metadata=False)
@@ -41,5 +42,8 @@ def download_instagram_post():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+# 🔥 THIS PART IS CRITICAL FOR RENDER.COM
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
+
