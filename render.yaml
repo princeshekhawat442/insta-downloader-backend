@@ -2,7 +2,7 @@ services:
   - type: web
     name: insta-downloader-backend
     env: python
-    buildCommand: poetry install
-    startCommand: poetry run python main.py
+    buildCommand: /opt/render/project/poetry/bin/poetry install
+    startCommand: /opt/render/project/poetry/bin/poetry run python main.py
     plan: free
     autoDeploy: true
