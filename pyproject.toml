@@ -1,0 +1,4 @@
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^3.1"
+instaloader = "^4.14"
