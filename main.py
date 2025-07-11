@@ -13,8 +13,8 @@ BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 def home():
     return "Bot + Downloader Running"
 
-# 🔹 TELEGRAM WEBHOOK
-@app.route('/bot', methods=['POST'])
+# ✅ Correct Webhook Route
+@app.route(f'/webhook/{TELEGRAM_TOKEN}', methods=['POST'])
 def telegram_webhook():
     data = request.get_json()
     if 'message' in data and 'text' in data['message']:
@@ -35,20 +35,17 @@ def telegram_webhook():
                         send_message(chat_id, f"📝 Caption: {response['caption'][:100]}")
             except Exception as e:
                 send_message(chat_id, f"⚠️ Failed: {str(e)}")
-
         else:
             send_message(chat_id, "⚠️ Send a valid Instagram post URL.")
-
     return "ok", 200
 
-# 🔹 INSTAGRAM DOWNLOAD LOGIC
 def download_instagram_post(url):
     try:
         start_time = time.time()
         shortcode = url.strip('/').split('/')[-1]
 
         L = instaloader.Instaloader(download_comments=False, save_metadata=False)
-        L.login('shekhawat_ji_002', 'Prince@0055')  # Use test account
+        L.login('shekhawat_ji_001', 'Prince@0055')  # Use test IG account
 
         post = instaloader.Post.from_shortcode(L.context, shortcode)
 
@@ -70,7 +67,6 @@ def download_instagram_post(url):
     except Exception as e:
         return {"error": str(e)}
 
-# 🔹 TELEGRAM HELPERS
 def send_message(chat_id, text):
     requests.post(f"{BASE_URL}/sendMessage", json={"chat_id": chat_id, "text": text})
 
