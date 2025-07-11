@@ -3,15 +3,16 @@ import requests
 
 app = Flask(__name__)
 
-# 🔹 Telegram Bot Token
+# 🔹 Your Telegram Bot Token
 TELEGRAM_TOKEN = "8086067009:AAGQ0BXUFW-gc9eGieZCqseIlzu56XwvYnA"
 BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
+# 🔹 Home Route (for testing)
 @app.route('/')
 def home():
-    return "Bot + Downloader Running"
+    return "✅ Instagram Downloader Bot is Running"
 
-# 🔹 Telegram Webhook
+# 🔹 Telegram Webhook Route
 @app.route('/bot', methods=['POST'])
 def telegram_webhook():
     data = request.get_json()
@@ -23,51 +24,49 @@ def telegram_webhook():
         if "instagram.com" in text:
             send_message(chat_id, "📥 Downloading Instagram post...")
 
-            try:
-                response = download_instagram_post(text)
-                if "error" in response:
-                    send_message(chat_id, f"❌ Error: {response['error']}")
-                else:
-                    for media_url in response["media"]:
-                        send_media(chat_id, media_url)
-                    if response["caption"]:
-                        send_message(chat_id, f"📝 Caption: {response['caption'][:100]}")
-            except Exception as e:
-                send_message(chat_id, f"⚠️ Failed: {str(e)}")
+            result = download_instagram_post(text)
+            if "error" in result:
+                send_message(chat_id, f"❌ Error: {result['error']}")
+            else:
+                for media_url in result['media']:
+                    send_media(chat_id, media_url)
+                if result.get("caption"):
+                    send_message(chat_id, f"📝 Caption: {result['caption'][:100]}")
         else:
             send_message(chat_id, "⚠️ Send a valid Instagram post URL.")
 
     return "ok", 200
 
-# 🔹 Instagram Download via Free API
-def download_instagram_post(insta_url):
+# 🔹 Download function using yabes-desu API
+def download_instagram_post(post_url):
     try:
-        api_url = f"https://api.yabes-desu.workers.dev/download/instagram/v2?url={insta_url}"
-        res = requests.get(api_url)
+        api_url = f"https://api.yabes-desu.workers.dev/download/instagram/v2?url={post_url}"
+        response = requests.get(api_url)
+        data = response.json()
 
-        if res.status_code != 200:
-            return {"error": "API Error. Please try again."}
+        if not data.get("data"):
+            return {"error": "Failed to get media from API."}
 
-        data = res.json()
         result = {
-            "caption": data.get("caption", ""),
-            "media": [m["url"] for m in data.get("media", [])],
-            "type": data.get("type", "unknown")
+            "caption": data["data"].get("caption", ""),
+            "media": [item["url"] for item in data["data"]["medias"]]
         }
         return result
 
     except Exception as e:
         return {"error": str(e)}
 
-# 🔹 Telegram Send Helpers
+# 🔹 Send message helper
 def send_message(chat_id, text):
     requests.post(f"{BASE_URL}/sendMessage", json={"chat_id": chat_id, "text": text})
 
+# 🔹 Send photo/video helper
 def send_media(chat_id, media_url):
     if media_url.endswith(".mp4"):
         requests.post(f"{BASE_URL}/sendVideo", json={"chat_id": chat_id, "video": media_url})
     else:
         requests.post(f"{BASE_URL}/sendPhoto", json={"chat_id": chat_id, "photo": media_url})
 
+# 🔹 Start the Flask app (Render will use gunicorn to run this)
 if __name__ == '__main__':
     app.run(debug=True)
