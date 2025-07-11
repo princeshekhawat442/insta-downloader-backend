@@ -4,6 +4,10 @@ import instaloader
 app = Flask(__name__)
 L = instaloader.Instaloader(download_comments=False, save_metadata=False)
 
+@app.route('/')
+def home():
+    return "Instagram Downloader Backend Running ✅"
+
 @app.route('/download', methods=['GET'])
 def download_instagram_post():
     url = request.args.get('url')
