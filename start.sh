@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# Activate virtualenv if it exists
-if [ -d ".venv" ]; then
-  source .venv/bin/activate
-fi
+# Use the virtual environment Render provides
+source /opt/render/project/src/.venv/bin/activate
 
-# Start your app with gunicorn
-python3 -m gunicorn main:app
+# Start the app
+gunicorn main:app
