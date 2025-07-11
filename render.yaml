@@ -3,7 +3,7 @@ services:
     name: insta-downloader-backend
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: ./venv/bin/gunicorn main:app
+    startCommand: gunicorn main:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.12
