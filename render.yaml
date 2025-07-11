@@ -1,11 +1,11 @@
 services:
   - type: web
     name: insta-downloader-backend
-    env: python
+    runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: /opt/render/project/.venv/bin/gunicorn main:app
-
+    startCommand: ./start.sh
+    env: python
+    region: oregon
     plan: free
-    envVars:
-      - key: PORT
-        value: 10000
+    branch: main
+    repo: https://github.com/princeshekhawat442/insta-downloader-backend
